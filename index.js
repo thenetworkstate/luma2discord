@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
 import { Client, GatewayIntentBits } from 'discord.js';
 
-import runCronJob from './cronJob.js';
-import initializeDatabase from './db.js';
-import handleNewGuild from './guildSetup.js';
-import simulateGuildCreate from './simulateGuildCreate.js';
+import runCronJob from './src/services/cronJob.js';
+import initializeDatabase from './src/services/db.js';
+import handleNewGuild from './src/discord-interactions/guildSetup.js';
+import simulateGuildCreate from './src/utils/simulateGuildCreate.js';
 
 dotenv.config();
 

@@ -10,17 +10,6 @@ The bot is built using Node.js and utilizes the Discord.js library for interacti
 
 -- PS: The Discord API calls Discord servers "guilds". We have kept the same nomencalture throughout the bot for easier readability.
 
-## File Structure
-
-- `index.js`: Main entry point of the application. Handles bot initialization and Discord event listeners.
-- `guildSetup.js`: Manages the setup process for new guilds, including user interactions for configuration.
-- `requestInformation.js`: Contains functions for requesting and handling user input during the setup process.
-- `cronJob.js`: Manages the scheduling and execution of periodic tasks, such as fetching and posting event updates.
-- `lumaScraper.js`: Manages the scraping of Luma Calendar events. This can be improved by using the Luma API for calendars with a paying subscription.
-- `showEvents.js`: Manages the display of events in the Discord channel.
-- `db.js`: Handles database operations for storing and retrieving guild settings.
-- `simulateGuildCreate.js`: Provides functionality for simulating guild creation events (for development testing).
-
 ## Setup and Running
 
 1. Clone the repository:
@@ -33,18 +22,12 @@ The bot is built using Node.js and utilizes the Discord.js library for interacti
    npm install
    ```
 
-3. Create a `.env` file in the root directory with the following contents:
-   ```
-   CLIENT_TOKEN=your_discord_bot_token
-   NODE_ENV=development  # or 'production' for production environment
-   ```
-
-4. Set up your `.env` file:
+3. Set up your `.env` file:
    Create a `.env` file in the root directory of your project and add the following variables:
 
    ```
    CLIENT_TOKEN=your_discord_bot_token
-   NODE_ENV=development
+   NODE_ENV=development // or production
    TEST_GUILD_ID=your_test_guild_id
    ```
 
@@ -59,7 +42,7 @@ The bot is built using Node.js and utilizes the Discord.js library for interacti
    - `NODE_ENV`: Set this to `development` for testing, or `production` for a live environment
    - `TEST_GUILD_ID`: This is the ID of the guild you want to test with. This allows you to test the bot in a real Discord server. You can find this by right-clicking the server name in Discord and selecting "Copy ID".
 
-5. To start the bot:
+4. To start the bot:
    ```
    node index.js
    ```
@@ -82,6 +65,25 @@ For production deployment:
 1. Set `NODE_ENV=production` in your `.env` file.
 2. Ensure you have a proper database setup. This bot uses sqlite for simplicity.
 3. Deploy to your hosting service of choice.
+
+## Folder Structure
+
+- `src/`: Main source code directory
+  - `index.js`: Main entry point of the application. Handles bot initialization and Discord event listeners.
+  - `services/`: Contains logic interacting with external services serving the core functionality of the bot.
+    - `cronJob.js`: Manages the scheduling and execution of periodic tasks, such as fetching and posting event updates.
+    - `db.js`: Handles database operations for storing and retrieving guild settings.
+    - `lumaScraper.js`: Manages the scraping of Luma Calendar events. This can be improved by using the Luma API for calendars with a paying subscription.
+  - `utils/`: Contains utility functions and helpers.
+    - `showEvents.js`: Manages the display of events in the Discord channel.
+    - `simulateGuildCreate.js`: Provides functionality for simulating guild creation events (for development testing).
+    - `time.js`: Contains functions for handling time-related operations.
+  - `discord-interactions/`: Handles interactions with Discord's API.
+    - `guildSetup.js`: Manages the setup process for new guilds, including user interactions for configuration.
+    - `requestInformation.js`: Contains functions for requesting and handling user input during the setup process.
+- `.env`: Stores environment variables.
+- `package.json`: Defines the project dependencies and scripts.
+- `README.md`: Project documentation.
 
 ## Contributing
 
