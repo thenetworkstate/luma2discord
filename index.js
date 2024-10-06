@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { Client, GatewayIntentBits } from 'discord.js';
 
+import { keepAlive } from './server.js';
 import runCronJob from './src/services/cronJob.js';
 import initializeDatabase from './src/services/db.js';
 import handleNewGuild from './src/discord-interactions/guildSetup.js';
@@ -54,4 +55,5 @@ client.on('ready', async () => {
   }
 });
 
-client.login(process.env.CLIENT_TOKEN);
+keepAlive();
+client.login(process.env.DISCORD_TOKEN);
