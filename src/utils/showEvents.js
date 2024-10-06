@@ -1,6 +1,6 @@
 import { bold } from 'discord.js';
 
-export default function showEvents(events) {
+function displayEvents(events) {
   if (events.length === 0) {
     return "🥹 No events scheduled for today.";
   }
@@ -18,3 +18,10 @@ export default function showEvents(events) {
     );
   }).join('');
 };
+
+export default function showEvents(events) {
+  return `
+  ## Today's Events \n\n
+  ${displayEvents(events)}
+  `
+}

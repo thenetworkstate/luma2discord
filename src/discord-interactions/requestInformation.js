@@ -59,7 +59,7 @@ async function requestTime(inviter) {
   const row = actionRowBuilder(
     'time_select',
     'Select the hour for daily notifications',
-    [{label: '12:35', value: '12:35'}, {label: '12:37', value: '12:37'}]
+    [{label: '13:03', value: '13:03'}, {label: '13:05', value: '13:05'}]
   );
 
   const timeMsg = await inviter.send({
