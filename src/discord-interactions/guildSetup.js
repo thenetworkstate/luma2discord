@@ -5,8 +5,9 @@ import { requestCalendarLink, requestChannelSelection, requestNotificationTime }
 
 export default async function handleNewGuild(guild, client, db) {
   const existingSettings = await db.getGuildSettings(guild.id);
+  const completedSettings = areSettingsComplete(existingSettings);
 
-  if (existingSettings?.calendarUrl && existingSettings?.notificationsChannelId) {
+  if (completedSettings) {
     console.log(`Guild ${guild.id} already set up. Skipping setup.`);
     return;
   }

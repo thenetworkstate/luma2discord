@@ -9,12 +9,16 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-const client = new Client({
+export const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.DirectMessages]
 });
 
 app.get('/', (req, res) => {
   res.send('Luma Calendar Discord Bot is running!');
+});
+
+app.get('/oauth-callback', (req, res) => {
+  res.send('Thanks for adding Luma Calendar Bot! Check your DMs to complete the setup.');
 });
 
 app.post('/interactions', express.json(), (req, res) => {
@@ -33,5 +37,3 @@ client.once('ready', () => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
-
-export { client };

@@ -85,6 +85,13 @@ async function createDatabase() {
   }
 }
 
+export function areSettingsComplete(settings) {
+  return settings?.calendarUrl &&
+    settings?.notificationsChannelId &&
+    settings?.notificationTime &&
+    settings?.timezone;
+}
+
 export default async function initializeDatabase() {
   return await createDatabase();
 }

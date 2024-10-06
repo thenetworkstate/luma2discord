@@ -8,6 +8,7 @@
     - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
     - Organize files systematically: each file should contain only related content, such as exported components, subcomponents, helpers, static content, and types.
     - Always use ES6+ syntax.
+    - Always choose forEach over for loops when iterating over arrays.
 
     Naming Conventions
     - Use lowercase with dashes for directories (e.g., components/auth-wizard).
