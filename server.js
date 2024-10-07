@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import { Client, GatewayIntentBits, InteractionResponseType } from 'discord.js';
 
-import { setupBot } from './src/bot.js';
+import { setupBot } from './src/index.js';
 
 dotenv.config();
 
@@ -14,11 +14,26 @@ export const client = new Client({
 });
 
 app.get('/', (req, res) => {
-  res.send('Luma Calendar Discord Bot is running!');
+  res.send('Luma Calendar Discord Bot is running! ⚡️');
 });
 
-app.get('/oauth-callback', (req, res) => {
-  res.send('Thanks for adding Luma Calendar Bot! Check your DMs to complete the setup.');
+app.get('/oauth-callback', async (req, res) => {
+  const { guild_id } = req.query;
+
+  try {
+    const guild = await client.guilds.fetch(guild_id);
+
+    if (guild) {
+      console.log(`Bot is in guild ${guild.name} (ID: ${guild.id})`);
+    } else {
+      console.log(`Bot is not in guild ${guild_id}. Installation failed and user may need to add the bot again.`);
+    }
+
+    res.send('Your Discord server has added the Luma Calendar Bot to fetch calendar events and display them daily! Check your DMs to complete the setup 👀.');
+  } catch (error) {
+    console.error('Error in OAuth callback:', error);
+    res.status(500).send('An error occurred during setup. Please try again.');
+  }
 });
 
 app.post('/interactions', express.json(), (req, res) => {

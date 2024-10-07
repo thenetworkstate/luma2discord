@@ -13,7 +13,6 @@ function displayEvents(events) {
 📍 ${bold('Location')}: ${event.address}
 👤 ${bold('Hosts')}: ${event.hosts}
 🔗 ${bold('For more details')}: ${event.url}
-
       `
     );
   }).join('');

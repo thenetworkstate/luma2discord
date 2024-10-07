@@ -85,7 +85,7 @@ async function createDatabase() {
   }
 }
 
-export function areSettingsComplete(settings) {
+function areSettingsComplete(settings) {
   return settings?.calendarUrl &&
     settings?.notificationsChannelId &&
     settings?.notificationTime &&

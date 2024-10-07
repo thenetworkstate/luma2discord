@@ -1,8 +1,10 @@
+import { bold } from 'discord.js';
+
 import { actionRowBuilder, getChannels } from '../utils/discordInteractions.js';
 import { hours, timezones } from '../utils/time.js';
 
 export async function requestCalendarLink(inviter, guild, db) {
-  const msg = await inviter.send('Please provide the Luma calendar link you want to fetch events from.');
+  const msg = await inviter.send(`📅 1. Please provide the ${bold('Luma calendar link')} you want to fetch events from. For ex, ${"`"}https://lu.ma/ns${"`"}`);
 
   const filter = msg => !msg.author.bot;
 
@@ -33,7 +35,7 @@ export async function requestChannelSelection(inviter, guild, db) {
   );
 
   const msg = await inviter.send({
-    content: 'Please select the channel where you want to receive Luma Calendar notifications in:',
+    content: `🛎️ 2. Please select the ${bold('channel')} where you want to receive Luma Calendar notifications in.`,
     components: [row]
   });
 
@@ -59,11 +61,11 @@ async function requestTime(inviter) {
   const row = actionRowBuilder(
     'time_select',
     'Select the hour for daily notifications',
-    [{label: '15:03', value: '15:03'}, {label: '15:07', value: '13:07'}]
+    hours
   );
 
   const timeMsg = await inviter.send({
-    content: 'At what hour would you like to receive daily event notifications? (4 AM to midnight)',
+    content: `⏰ 3. At what ${bold('hour')} would you like to receive daily event notifications? (4 AM to midnight)`,
     components: [row]
   });
 
@@ -73,7 +75,7 @@ async function requestTime(inviter) {
       time: 300000
     });
 
-    await interaction.update({ content: `You selected ${interaction.values[0]}:00 for daily notifications.`, components: [] });
+    await interaction.update({ content: `You selected ${interaction.values[0]} for daily notifications.`, components: [] });
     return `${interaction.values[0]}:00`;
   } catch (error) {
     console.error('Error in requestTime:', error);
@@ -90,7 +92,7 @@ async function requestTimezone(inviter) {
   );
 
   const tzMsg = await inviter.send({
-    content: 'Please select your timezone:',
+    content: `🌎 4. Please select your ${bold('timezone')}.`,
     components: [row]
   });
 
@@ -118,4 +120,14 @@ export async function requestNotificationTime(inviter, guild, db) {
   await db.setGuildSetting(guild.id, 'timezone', timezone);
 
   return { time, timezone };
+}
+
+export async function getChannelName(client, channelId) {
+  try {
+    const channel = await client.channels.fetch(channelId);
+    return channel.name;
+  } catch (error) {
+    console.error(`Error fetching channel ${channelId}:`, error);
+    return null;
+  }
 }

@@ -50,10 +50,9 @@ export async function scrapeLumaCalendar(calendarUrl) {
       .map(item => ({
         title: item.event.name,
         startTime: moment(item.event.start_at).format('h:mm A'),
-        url: `https://lu.ma/e/${item.event.url}`,
+        url: `https://lu.ma/${item.event.url}`,
         description: item.event.description || null,
         address: item.event.geo_address_info?.address || 'No address provided',
-        coverUrl: item.event.cover_url || null,
         hosts: item.hosts?.map(host => host.name).join(', ') || 'No host information'
       }));
 

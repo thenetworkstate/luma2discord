@@ -1,16 +1,16 @@
-import handleNewGuild from './discord-interactions/guildSetup.js';
 import runCronJob from './services/cronJob.js';
-import initializeDatabase, { areSettingsComplete } from './services/db.js';
+import initializeDatabase from './services/db.js';
+import { initiateDMSetup } from './discord-interactions/guildSetup.js';
 
 const db = await initializeDatabase();
 
 export async function setupBot(client) {
   client.on('guildCreate', async (guild) => {
     console.log(`Joined new guild: ${guild.name} (ID: ${guild.id})`);
-    await handleNewGuild(guild, client, db);
+    await handleNewGuild(guild, client);
   });
 
-  await initializeExistingGuilds(client);
+  await initializeExistingGuilds(client, db);
 }
 
 async function initializeExistingGuilds(client) {
@@ -20,14 +20,26 @@ async function initializeExistingGuilds(client) {
     console.log(`Checking guild: ${guild.name} (ID: ${guild.id})`);
 
     const settings = await db.getGuildSettings(guild.id);
-    const completedSettings = areSettingsComplete(settings);
+    const completedSettings = await db.areSettingsComplete(settings);
 
     if (completedSettings) {
       console.log(`Running cron job for guild ${guild.id}`);
       await runCronJob(client, guild.id, db);
     } else {
       console.log(`Incomplete settings for guild ${guild.id}. Setup may be needed.`);
-      // Optionally, you could trigger setup here, but it might be better to wait for manual interaction
     }
   });
+}
+
+export async function handleNewGuild(guild, client) {
+  const existingSettings = await db.getGuildSettings(guild.id);
+  const completedSettings = await db.areSettingsComplete(existingSettings);
+
+  if (completedSettings) {
+    console.log(`Guild ${guild.id} already set up. Skipping setup.`);
+    return;
+  }
+
+  console.log(`Bot added to new guild: ${guild.name} (ID: ${guild.id})`);
+  await initiateDMSetup(guild, client, db);
 }
