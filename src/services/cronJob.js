@@ -13,7 +13,7 @@ async function setupCronJob(client, guildId, db) {
     cronJobs.get(guildId).stop();
   }
 
-  if (calendarUrl && notificationsChannelId && notificationTime) {
+  if (calendarUrl && notificationsChannelId && notificationTime && timezone) {
     const [hours, minutes] = notificationTime.split(':');
     const cronFrequency = `${minutes} ${hours} * * *`;
 
