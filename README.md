@@ -106,7 +106,7 @@ The bot primarily operates through an interactive setup process when added to a 
 Important to note:
 - Make sure you're running the server locally when you install it in your server.
 - Make sure you add the development endpoint to the "Redirects" section in the Discord Developer Portal.
-- To test, make sure the server you're using doesn't have the bot already installed. If you're testing, it's likely you'll also want to remove the guild from the database to start fresh. You can do this through calling `sqlite` in your terminal and then deleting the row in the `guild_settings` table or using a database browser like [DB Browser](https://sqlitebrowser.org/dl/) to review the data visually..
+- To test, make sure you have the local posgreql server running.
 
 ### Database Setup
 
