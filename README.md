@@ -177,7 +177,7 @@ Follow these steps to deploy your bot and set up the PostgreSQL database in Hero
 
    - `heroku addons:create` is the command to add a new addon to your Heroku app.
    - `heroku-postgresql` is the name of the addon, which is Heroku's managed PostgreSQL database service.
-   - `hobby-dev` is the plan tier. It's their cheapest tier of Heroku PostgreSQL, suitable for development and small projects. It has some limitations, including: 10,000 row limit, 1 GB of storage, no automatic backups, limited concurrent connections.
+   - `essential-0` is the plan tier. It's their cheapest tier of Heroku PostgreSQL, suitable for development and small projects. It has some limitations, including: 10,000 row limit, 1 GB of storage, no automatic backups, limited concurrent connections.
    - `--app your-app-name` specifies which Heroku app to add this database to. Replace `your-app-name` with the actual name of your Heroku app.
 
 5. Set up the necessary environment variables:
@@ -202,10 +202,18 @@ Follow these steps to deploy your bot and set up the PostgreSQL database in Hero
    heroku logs --tail
    ```
 
-9.  To connect to the PostgreSQL database directly:
+9.  To connect to the PostgreSQL database directly, you can call:
     ```
     heroku pg:psql
     ```
+
+    Alternatively, you should see a section called Add-ons in your Heroku dashboard.
+    1. Click on the "Heroku Postgres" add-on you should have already installed through step 4.
+    2. Go into the "Settings" tab
+    3. Go to "Database Credentials"
+    4. Copy the "Heroku CLI" value
+    5. Paste it your terminal and hit enter
+    6. Perform any SQL queries to your production database.
 
 ## Folder Structure
 
