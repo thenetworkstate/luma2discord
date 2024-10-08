@@ -172,20 +172,20 @@ Follow these steps to deploy your bot and set up the PostgreSQL database in Hero
 
 4. Add the PostgreSQL addon to your Heroku app:
    ```
-   heroku addons:create heroku-postgresql:hobby-dev --app your-app-name
+   heroku addons:create heroku-postgresql:essential-0 --app your-app-name
    ```
 
    - `heroku addons:create` is the command to add a new addon to your Heroku app.
    - `heroku-postgresql` is the name of the addon, which is Heroku's managed PostgreSQL database service.
-   - `hobby-dev` is the plan tier. It's the free tier of Heroku PostgreSQL, suitable for development and small projects. It has some limitations, including: 10,000 row limit, 1 GB of storage, no automatic backups, limited concurrent connections.
+   - `hobby-dev` is the plan tier. It's their cheapest tier of Heroku PostgreSQL, suitable for development and small projects. It has some limitations, including: 10,000 row limit, 1 GB of storage, no automatic backups, limited concurrent connections.
    - `--app your-app-name` specifies which Heroku app to add this database to. Replace `your-app-name` with the actual name of your Heroku app.
 
 5. Set up the necessary environment variables:
    ```
    heroku config:set DISCORD_TOKEN=your_discord_bot_token
-   heroku config:set DATABASE_URL=your_postgres_database_url
    heroku config:set NODE_ENV=production
    ```
+   -- In production, Heroku sets the `DATABASE_URL` environment variable for you after you have the Postgress add-on.
 
 6. Push your code to Heroku:
    ```
@@ -202,13 +202,7 @@ Follow these steps to deploy your bot and set up the PostgreSQL database in Hero
    heroku logs --tail
    ```
 
-9. The database URL will be automatically set in the `DATABASE_URL` config var. You can view it with the following command:
-   ```
-   heroku config:get DATABASE_URL
-   ```
-   Same thing for the rest of the environment variables.
-
-10. To connect to the PostgreSQL database directly:
+9.  To connect to the PostgreSQL database directly:
     ```
     heroku pg:psql
     ```
