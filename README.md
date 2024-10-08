@@ -106,7 +106,7 @@ The bot primarily operates through an interactive setup process when added to a 
 Important to note:
 - Make sure you're running the server locally when you install it in your server.
 - Make sure you add the development endpoint to the "Redirects" section in the Discord Developer Portal.
-- To test, make sure the server you're using doesn't have the bot already installed. If you're testing, it's likely you'll also want to remove the guild from the database to start fresh. You can do this through calling `sqlite` in your terminal and then deleting the row in the `guild_settings` table or using a database browser like [DB Browser](https://sqlitebrowser.org/dl/) to review the data visually..
+- To test, make sure you have the local posgreql server running.
 
 ### Database Setup
 
@@ -172,20 +172,20 @@ Follow these steps to deploy your bot and set up the PostgreSQL database in Hero
 
 4. Add the PostgreSQL addon to your Heroku app:
    ```
-   heroku addons:create heroku-postgresql:hobby-dev --app your-app-name
+   heroku addons:create heroku-postgresql:essential-0 --app your-app-name
    ```
 
    - `heroku addons:create` is the command to add a new addon to your Heroku app.
    - `heroku-postgresql` is the name of the addon, which is Heroku's managed PostgreSQL database service.
-   - `hobby-dev` is the plan tier. It's the free tier of Heroku PostgreSQL, suitable for development and small projects. It has some limitations, including: 10,000 row limit, 1 GB of storage, no automatic backups, limited concurrent connections.
+   - `essential-0` is the plan tier. It's their cheapest tier of Heroku PostgreSQL, suitable for development and small projects. It has some limitations, including: 10,000 row limit, 1 GB of storage, no automatic backups, limited concurrent connections.
    - `--app your-app-name` specifies which Heroku app to add this database to. Replace `your-app-name` with the actual name of your Heroku app.
 
 5. Set up the necessary environment variables:
    ```
    heroku config:set DISCORD_TOKEN=your_discord_bot_token
-   heroku config:set DATABASE_URL=your_postgres_database_url
    heroku config:set NODE_ENV=production
    ```
+   -- In production, Heroku sets the `DATABASE_URL` environment variable for you after you have the Postgress add-on.
 
 6. Push your code to Heroku:
    ```
@@ -202,16 +202,18 @@ Follow these steps to deploy your bot and set up the PostgreSQL database in Hero
    heroku logs --tail
    ```
 
-9. The database URL will be automatically set in the `DATABASE_URL` config var. You can view it with the following command:
-   ```
-   heroku config:get DATABASE_URL
-   ```
-   Same thing for the rest of the environment variables.
-
-10. To connect to the PostgreSQL database directly:
+9.  To connect to the PostgreSQL database directly, you can call:
     ```
     heroku pg:psql
     ```
+
+    Alternatively, you should see a section called Add-ons in your Heroku dashboard.
+    1. Click on the "Heroku Postgres" add-on you should have already installed through step 4.
+    2. Go into the "Settings" tab
+    3. Go to "Database Credentials"
+    4. Copy the "Heroku CLI" value
+    5. Paste it your terminal and hit enter
+    6. Perform any SQL queries to your production database.
 
 ## Folder Structure
 
