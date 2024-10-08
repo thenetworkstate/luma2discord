@@ -6,14 +6,14 @@ import showEvents from '../utils/showEvents.js';
 async function setupCronJob(client, guildId, db) {
   const cronJobs = new Map();
 
-  const { calendarUrl, notificationsChannelId, notificationTime, timezone } = await db.getGuildSettings(guildId);
-
   // Stop from creating new cron job if one already exists
   if (cronJobs.has(guildId)) {
     cronJobs.get(guildId).stop();
   }
 
-  if (calendarUrl && notificationsChannelId && notificationTime && timezone) {
+  if (await db.areSettingsComplete(guildId)) {
+    const { calendarUrl, notificationsChannelId, notificationTime, timezone } = await db.getGuildSettings(guildId);
+
     const [hours, minutes] = notificationTime.split(':');
     const cronFrequency = `${minutes} ${hours} * * *`;
 
