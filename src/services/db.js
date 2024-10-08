@@ -54,7 +54,7 @@ async function setGuildSetting(db, guildId, key, value) {
        SET settings = COALESCE(guild_settings.settings, '{}'::jsonb) || jsonb_build_object($2::text, $3::text)
       RETURNING settings
     `, [guildId, key, value]);
-    
+
     console.log(`Updated setting ${key} for guild ${guildId}: ${value}. Current settings for guild ${guildId}:`, result.rows[0].settings);
 
     return result.rows[0].settings;
