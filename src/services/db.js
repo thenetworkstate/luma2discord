@@ -1,43 +1,44 @@
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+import pg from 'pg';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const isProduction = process.env.NODE_ENV === 'production';
 
 async function createConnection() {
-  const db = await open({
-    filename: './bot_data.db',
-    driver: sqlite3.Database
+  const pool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: isProduction ? { rejectUnauthorized: false } : false
   });
-  console.log('Database connection established successfully.');
-  return db;
+
+  console.log('PostgreSQL connection established successfully.');
+
+  return pool;
 }
 
 async function createTables(db) {
-  await db.exec(`
+  await db.query(`
     CREATE TABLE IF NOT EXISTS guild_settings (
       guild_id TEXT PRIMARY KEY,
-      settings TEXT
+      settings JSONB,
+      setup_started BOOLEAN DEFAULT FALSE
     )
   `);
 }
 
 async function getGuildSettings(db, guildId) {
   try {
-    const row = await db.get(
-      'SELECT settings FROM guild_settings WHERE guild_id = ?',
+    const result = await db.query(
+      'SELECT settings FROM guild_settings WHERE guild_id = $1',
       [guildId]
     );
 
-    if (!row) return null;
+    if (!result.rows[0]) {
+      console.log(`No settings found for guild ${guildId}`);
+      return null;
+    }
 
-    const settings = JSON.parse(row.settings);
-
-    const sanitizedSettings = Object.fromEntries(
-      Object.entries(settings).map(([key, value]) => [
-        key,
-        typeof value === 'string' ? value.replace(/^"(.*)"$/, '$1') : value
-      ])
-    );
-
-    return sanitizedSettings;
+    return result.rows[0]?.settings || {};
   } catch (error) {
     console.error(`Error fetching settings for guild ${guildId}:`, error);
     return null;
@@ -46,25 +47,83 @@ async function getGuildSettings(db, guildId) {
 
 async function setGuildSetting(db, guildId, key, value) {
   try {
-    await db.run(`
+    const result = await db.query(`
       INSERT INTO guild_settings (guild_id, settings)
-      VALUES (?, json_set(COALESCE(
-        (SELECT settings FROM guild_settings WHERE guild_id = ?),
-        '{}'),
-        '$.' || ?, ?))
-      ON CONFLICT(guild_id) DO UPDATE SET
-      settings = json_set(settings, '$.' || ?, ?)
-    `, [guildId, guildId, key, JSON.stringify(value), key, JSON.stringify(value)]);
+      VALUES ($1, jsonb_build_object($2::text, $3::text))
+      ON CONFLICT (guild_id) DO UPDATE
+       SET settings = COALESCE(guild_settings.settings, '{}'::jsonb) || jsonb_build_object($2::text, $3::text)
+      RETURNING settings
+    `, [guildId, key, value]);
 
-    console.log(`Updated setting ${key} for guild ${guildId}: ${value}`);
+    console.log(`Updated setting ${key} for guild ${guildId}: ${value}. Current settings for guild ${guildId}:`, result.rows[0].settings);
+
+    return result.rows[0].settings;
   } catch (error) {
     console.error(`Error updating setting ${key} for guild ${guildId}:`, error);
     throw error;
   }
 }
 
-async function deleteGuildSettings(db, guildId) {
-  await db.run('DELETE FROM guild_settings WHERE guild_id = ?', [guildId]);
+async function areSettingsComplete(db, guildId) {
+  if (!guildId) {
+    console.error('Invalid guildId provided to areSettingsComplete');
+    return false;
+  }
+
+  try {
+    const settings = await getGuildSettings(db, guildId);
+
+    if (!settings) {
+      console.log(`No settings found for guild ${guildId}`);
+      return false;
+    }
+
+    const requiredSettings = ['calendarUrl', 'notificationsChannelId', 'notificationTime', 'timezone'];
+    const hasAllSettings = requiredSettings.every(setting =>
+      settings.hasOwnProperty(setting) && settings[setting] !== null && settings[setting] !== ''
+    );
+
+    console.log(`Settings completeness for guild ${guildId}:`, hasAllSettings);
+    return hasAllSettings;
+  } catch (error) {
+    console.error(`Error checking settings completeness for guild ${guildId}:`, error);
+    return false;
+  }
+}
+
+async function setSetupStarted(db, guildId, value) {
+  try {
+    const result = await db.query(`
+      INSERT INTO guild_settings (guild_id, setup_started)
+      VALUES ($1, $2)
+      ON CONFLICT (guild_id) DO UPDATE
+      SET setup_started = $2
+      RETURNING setup_started
+    `, [guildId, value]);
+
+    console.log(`Updated setupStarted for guild ${guildId}: ${value}`);
+
+    return result.rows[0].setup_started;
+  } catch (error) {
+    console.error(`Error updating setupStarted for guild ${guildId}:`, error);
+    throw error;
+  }
+}
+
+async function hasSetupStarted(db, guildId) {
+  try {
+    const result = await db.query(
+      'SELECT setup_started FROM guild_settings WHERE guild_id = $1',
+      [guildId]
+    );
+
+    console.log(`Fetched setupStarted for guild ${guildId}:`, result.rows[0]?.setup_started);
+
+    return result.rows[0]?.setup_started;
+  } catch (error) {
+    console.error(`Error fetching setupStarted for guild ${guildId}:`, error);
+    return false;
+  }
 }
 
 async function createDatabase() {
@@ -73,23 +132,17 @@ async function createDatabase() {
     await createTables(db);
 
     return {
-      getGuildSettings: (guildId) => getGuildSettings(db, guildId),
-      setGuildSetting: (guildId, key, value) => setGuildSetting(db, guildId, key, value),
-      deleteGuildSettings: (guildId) => deleteGuildSettings(db, guildId),
-      close: async () => await db.close(),
-      areSettingsComplete: async (guildId) => areSettingsComplete(db, guildId)
+      areSettingsComplete: async (guildId) => areSettingsComplete(db, guildId),
+      close: async () => await db.end(),
+      getGuildSettings: async (guildId) => getGuildSettings(db, guildId),
+      setGuildSetting: async (guildId, key, value) => setGuildSetting(db, guildId, key, value),
+      hasSetupStarted: async (guildId) => hasSetupStarted(db, guildId),
+      setSetupStarted: async (guildId, value) => setSetupStarted(db, guildId, value)
     };
   } catch (error) {
     console.error('Error creating database:', error);
     throw error;
   }
-}
-
-function areSettingsComplete(settings) {
-  return settings?.calendarUrl &&
-    settings?.notificationsChannelId &&
-    settings?.notificationTime &&
-    settings?.timezone;
 }
 
 export default async function initializeDatabase() {

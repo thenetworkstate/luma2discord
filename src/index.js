@@ -19,8 +19,7 @@ async function initializeExistingGuilds(client) {
   client.guilds.cache.forEach(async (guild) => {
     console.log(`Checking guild: ${guild.name} (ID: ${guild.id})`);
 
-    const settings = await db.getGuildSettings(guild.id);
-    const completedSettings = await db.areSettingsComplete(settings);
+    const completedSettings = await db.areSettingsComplete(guild.id);
 
     if (completedSettings) {
       console.log(`Running cron job for guild ${guild.id}`);
@@ -31,11 +30,11 @@ async function initializeExistingGuilds(client) {
   });
 }
 
-export async function handleNewGuild(guild, client) {
+async function handleNewGuild(guild, client) {
   const existingSettings = await db.getGuildSettings(guild.id);
   const completedSettings = await db.areSettingsComplete(existingSettings);
 
-  if (completedSettings) {
+  if (existingSettings && completedSettings) {
     console.log(`Guild ${guild.id} already set up. Skipping setup.`);
     return;
   }
