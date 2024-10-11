@@ -6,10 +6,12 @@ function displayEvents(events) {
   }
 
   return events.map((event) => {
+    const localStartTime = moment.tz(event.startTime, timezone).format('h:mm A');
+
     return (
       `
 📆 ${bold('Event')}: ${event.title}
-⏰ ${bold('Time')}: ${event.startTime}
+⏰ ${bold('Time')}: ${localStartTime} ${timezone}
 📍 ${bold('Location')}: ${event.address}
 👤 ${bold('Hosts')}: ${event.hosts}
 🔗 ${bold('For more details')}: ${event.url}
